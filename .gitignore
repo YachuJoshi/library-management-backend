@@ -20,8 +20,11 @@ package-lock.json
 *.gz
 
 
+# dev
+.env
+
 # Coveralls
 coverage
 
 # Benchmarking
-benchmarks/graphs
+benchmarks/graphis
