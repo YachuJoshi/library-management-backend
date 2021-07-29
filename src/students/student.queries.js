@@ -1,7 +1,7 @@
-const pool = require("./db");
+import { pool } from "../db";
 
 // Get all students
-const getStudents = async (req, res) => {
+const getAllStudents = async (req, res) => {
   try {
     const { rows } = await pool.query("SELECT * FROM student");
     if (rows.length > 0) {
@@ -24,13 +24,10 @@ const getStudentById = async (req, res) => {
     if (rows.length > 0) {
       return res.status(200).json(rows[0]);
     }
-    return res.status(404).send(`Student w/ id ${id} was not found`);
+    throw new Error("Student not found!");
   } catch (e) {
     throw new Error(e);
   }
 };
 
-module.exports = {
-  getStudents,
-  getStudentById,
-};
+export { getAllStudents, getStudentById };

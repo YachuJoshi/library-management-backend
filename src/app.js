@@ -1,17 +1,10 @@
-const express = require("express");
-const app = express();
-const pg = require("./query.js");
+import express from "express";
+import routes from "./routes";
 
-app.use(express.json());
+export function initApp() {
+  const app = express();
+  app.use(express.json());
+  app.use("/api", routes);
 
-app.get("/", (req, res) => {
-  res.json({ message: "Hello World" });
-});
-
-app.get("/api/students", pg.getStudents);
-app.get("/api/students/:id", pg.getStudentById);
-
-const port = process.env.PORT || 8000;
-app.listen(port, () => {
-  console.log(`App runnning on port ${port}`);
-});
+  return { app };
+}
