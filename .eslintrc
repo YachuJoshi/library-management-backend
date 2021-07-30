@@ -1,0 +1,22 @@
+{
+  "env": {
+    "es6": true,
+    "node": true
+  },
+  "extends": ["eslint:recommended", "airbnb", "prettier", "plugin:node/recommended"],
+  "plugins": ["prettier"],
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module"
+  },
+  "rules": {
+    "import/prefer-default-export": "off",
+    "class-methods-use-this": "off",
+    "object-shorthand": "off",
+    "no-unused-vars": "warn",
+    "no-process-exit": "off",
+    "no-console": "off",
+    "func-names": "off",
+    "node/no-unsupported-features/es-syntax": "off"
+  }
+}
