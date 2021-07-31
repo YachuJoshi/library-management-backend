@@ -17,6 +17,7 @@
     "no-process-exit": "off",
     "no-console": "off",
     "func-names": "off",
-    "node/no-unsupported-features/es-syntax": "off"
+    "node/no-unsupported-features/es-syntax": "off",
+    "import/named": "off"
   }
 }

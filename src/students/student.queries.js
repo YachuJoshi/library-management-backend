@@ -24,10 +24,37 @@ const getStudentById = async (req, res) => {
     if (rows.length > 0) {
       return res.status(200).json(rows[0]);
     }
-    throw new Error("Student not found!");
+    throw new Error("Student Not Found!");
   } catch (e) {
     throw new Error(e);
   }
 };
 
-export { getAllStudents, getStudentById };
+// Get student book detail
+const getStudentBookDetail = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const { rows: books } = await pool.query(
+      "SELECT * FROM student_book_detail WHERE student_id = $1",
+      [id]
+    );
+    if (books.length > 0) {
+      return res.status(200).json(books);
+    }
+
+    // No student or student has no book issued
+    const { rows } = await pool.query(
+      "SELECT * FROM student WHERE student_id = $1",
+      [id]
+    );
+    if (rows.length > 0) {
+      // Student has no books
+      return res.status(200).json([]);
+    }
+    throw new Error("Student Not Found!");
+  } catch (e) {
+    throw new Error(e);
+  }
+};
+
+export { getAllStudents, getStudentById, getStudentBookDetail };
