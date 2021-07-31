@@ -1,20 +1,26 @@
 import { pool } from "../db";
+import { CustomError } from "../error";
 
 // Get all students
-const getAllStudents = async (req, res) => {
+const getAllStudents = async (_, res, next) => {
   try {
     const { rows } = await pool.query("SELECT * FROM student");
     if (rows.length > 0) {
       return res.status(200).json(rows);
     }
-    return res.status(404).send("Not Found");
+    return next(
+      new CustomError({
+        code: 404,
+        message: "Student Not Found!",
+      })
+    );
   } catch (e) {
-    throw new Error(e);
+    return next({});
   }
 };
 
 // Get student by id
-const getStudentById = async (req, res) => {
+const getStudentById = async (req, res, next) => {
   const { id } = req.params;
   try {
     const { rows } = await pool.query(
@@ -24,14 +30,20 @@ const getStudentById = async (req, res) => {
     if (rows.length > 0) {
       return res.status(200).json(rows[0]);
     }
-    throw new Error("Student Not Found!");
+    return next(
+      new CustomError({
+        code: 404,
+        message: "Student Not Found!",
+      })
+    );
   } catch (e) {
-    throw new Error(e);
+    console.log("HERE");
+    return next({});
   }
 };
 
 // Get student book detail
-const getStudentBookDetail = async (req, res) => {
+const getStudentBookDetail = async (req, res, next) => {
   const { id } = req.params;
   try {
     const { rows: books } = await pool.query(
@@ -51,9 +63,14 @@ const getStudentBookDetail = async (req, res) => {
       // Student has no books
       return res.status(200).json([]);
     }
-    throw new Error("Student Not Found!");
+    return next(
+      new CustomError({
+        code: 404,
+        message: "Student Not Found!",
+      })
+    );
   } catch (e) {
-    throw new Error(e);
+    return next({});
   }
 };
 
