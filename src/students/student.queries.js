@@ -37,7 +37,6 @@ const getStudentById = async (req, res, next) => {
       })
     );
   } catch (e) {
-    console.log("HERE");
     return next({});
   }
 };

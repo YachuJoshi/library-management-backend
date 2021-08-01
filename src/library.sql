@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS student (
   address VARCHAR(20) NOT NULL,
   phone_no VARCHAR(10) NOT NULL UNIQUE,
   roll_no VARCHAR(10) NOT NULL UNIQUE,
-  email VARCHAR(20) NOT NULL UNIQUE,
+  email VARCHAR(50) NOT NULL UNIQUE,
   username VARCHAR(20) NOT NULL UNIQUE,
   password TEXT NOT NULL
 );
@@ -25,8 +25,8 @@ CREATE TABLE IF NOT EXISTS genre (
   description TEXT NOT NULL
 );
 CREATE TABLE IF NOT EXISTS book (
-  isbn VARCHAR(13) PRIMARY KEY,
-  name VARCHAR(20) NOT NULL,
+  isbn VARCHAR(17) PRIMARY KEY,
+  name VARCHAR(50) NOT NULL,
   quantity INT CHECK(quantity >= 0) NOT NULL,
   author_id BIGINT NOT NULL,
   publication_id BIGINT NOT NULL,
@@ -34,13 +34,13 @@ CREATE TABLE IF NOT EXISTS book (
   CONSTRAINT book_publication FOREIGN KEY(publication_id) REFERENCES publication(publication_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 CREATE TABLE IF NOT EXISTS book_genre (
-  isbn VARCHAR(13) REFERENCES book(isbn) NOT NULL,
+  isbn VARCHAR(17) REFERENCES book(isbn) NOT NULL,
   genre_id BIGINT REFERENCES genre(genre_id) NOT NULL,
   PRIMARY KEY (isbn, genre_id)
 );
 CREATE TABLE IF NOT EXISTS book_inventory (
   book_inv_id BIGSERIAL PRIMARY KEY,
-  isbn VARCHAR(13) NOT NULL,
+  isbn VARCHAR(17) NOT NULL,
   is_available BOOLEAN NOT NULL,
   CONSTRAINT book_isbn FOREIGN KEY(isbn) REFERENCES book(isbn) ON UPDATE CASCADE ON DELETE CASCADE
 );
