@@ -3,7 +3,7 @@ import {
   fetchAllStudents,
   fetchStudentById,
   fetchStudentBookDetail,
-} from "./student.servcies";
+} from "./student.services";
 import { CustomError } from "../error";
 
 const router = express.Router();
@@ -11,17 +11,18 @@ const router = express.Router();
 router.get("/", async (_, res, next) => {
   try {
     const students = await fetchAllStudents();
-    if (students.length > 0) {
+    try {
       return res.status(200).json(students);
+    } catch {
+      return next(
+        new CustomError({
+          code: 404,
+          message: "Student Not Found!",
+        })
+      );
     }
-    return next(
-      new CustomError({
-        code: 404,
-        message: "Student Not Found!",
-      })
-    );
   } catch (e) {
-    return next({});
+    return next(e);
   }
 });
 
@@ -39,7 +40,7 @@ router.get("/:id", async (req, res, next) => {
       })
     );
   } catch (e) {
-    return next({});
+    return next(e);
   }
 });
 
@@ -64,7 +65,7 @@ router.get("/:id/books", async (req, res, next) => {
       })
     );
   } catch (e) {
-    return next({});
+    return next(e);
   }
 });
 
