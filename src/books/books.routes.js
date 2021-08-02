@@ -4,6 +4,7 @@ import {
   fetchAllBooks,
   fetchBookByISBN,
   fetchAvailableBooks,
+  notFoundError,
 } from "./books.services";
 import { fetchStudentById } from "../students/student.services";
 import { CustomError } from "../error";
@@ -41,16 +42,19 @@ router.get("/:isbn", async (req, res, next) => {
   const { isbn } = req.params;
   try {
     const book = await fetchBookByISBN(isbn);
-    if (book) {
-      return res.status(200).json(book);
+    if (!book) {
+      throw notFoundError;
     }
-    return next(
-      new CustomError({
-        code: 404,
-        message: "Book Not Found!",
-      })
-    );
+    return res.status(200).json(book);
   } catch (e) {
+    if (e === notFoundError) {
+      return next(
+        new CustomError({
+          code: 404,
+          message: "Book Not Found!",
+        })
+      );
+    }
     return next(e);
   }
 });
