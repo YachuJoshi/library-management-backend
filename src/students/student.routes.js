@@ -3,6 +3,7 @@ import {
   fetchAllStudents,
   fetchStudentById,
   fetchStudentBookDetail,
+  studentNotFoundError,
 } from "./student.services";
 import { CustomError } from "../error";
 
@@ -11,16 +12,7 @@ const router = express.Router();
 router.get("/", async (_, res, next) => {
   try {
     const students = await fetchAllStudents();
-    try {
-      return res.status(200).json(students);
-    } catch {
-      return next(
-        new CustomError({
-          code: 404,
-          message: "Student Not Found!",
-        })
-      );
-    }
+    return res.status(200).json(students);
   } catch (e) {
     return next(e);
   }
@@ -30,16 +22,19 @@ router.get("/:id", async (req, res, next) => {
   const { id } = req.params;
   try {
     const student = await fetchStudentById(id);
-    if (student) {
-      return res.status(200).json(student);
+    if (!student) {
+      throw studentNotFoundError;
     }
-    return next(
-      new CustomError({
-        code: 404,
-        message: "Student Not Found!",
-      })
-    );
+    return res.status(200).json(student);
   } catch (e) {
+    if (e === studentNotFoundError) {
+      return next(
+        new CustomError({
+          code: 404,
+          message: e.message || "Student Not Found!",
+        })
+      );
+    }
     return next(e);
   }
 });
@@ -54,17 +49,21 @@ router.get("/:id/books", async (req, res, next) => {
 
     // No student or student has no book
     const student = await fetchStudentById(id);
-    if (student) {
-      // Student has no books
-      return res.status(200).json([]);
+
+    // No student
+    if (!student) {
+      throw studentNotFoundError;
     }
-    return next(
-      new CustomError({
-        code: 404,
-        message: "Student Not Found!",
-      })
-    );
+    return res.status(200).json([]);
   } catch (e) {
+    if (e === studentNotFoundError) {
+      return next(
+        new CustomError({
+          code: 404,
+          message: e.message || "Student Not Found!",
+        })
+      );
+    }
     return next(e);
   }
 });

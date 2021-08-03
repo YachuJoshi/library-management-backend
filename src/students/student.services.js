@@ -21,4 +21,11 @@ const fetchStudentBookDetail = async (id) => {
   return books;
 };
 
-export { fetchAllStudents, fetchStudentById, fetchStudentBookDetail };
+const studentNotFoundError = new Error("Student Not Found!");
+
+export {
+  fetchAllStudents,
+  fetchStudentById,
+  fetchStudentBookDetail,
+  studentNotFoundError,
+};

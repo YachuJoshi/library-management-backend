@@ -4,9 +4,13 @@ import {
   fetchAllBooks,
   fetchBookByISBN,
   fetchAvailableBooks,
-  notFoundError,
+  bookNotFoundError,
+  bookNotAvailableError,
 } from "./books.services";
-import { fetchStudentById } from "../students/student.services";
+import {
+  fetchStudentById,
+  studentNotFoundError,
+} from "../students/student.services";
 import { CustomError } from "../error";
 
 const router = express.Router();
@@ -14,16 +18,7 @@ const router = express.Router();
 router.get("/", async (_, res, next) => {
   try {
     const books = await fetchAllBooks();
-    try {
-      return res.status(200).json(books);
-    } catch {
-      return next(
-        new CustomError({
-          code: 404,
-          message: "Books Not Found!",
-        })
-      );
-    }
+    return res.status(200).json(books);
   } catch (e) {
     return next(e);
   }
@@ -43,15 +38,15 @@ router.get("/:isbn", async (req, res, next) => {
   try {
     const book = await fetchBookByISBN(isbn);
     if (!book) {
-      throw notFoundError;
+      throw bookNotFoundError;
     }
     return res.status(200).json(book);
   } catch (e) {
-    if (e === notFoundError) {
+    if (e === bookNotFoundError) {
       return next(
         new CustomError({
           code: 404,
-          message: "Book Not Found!",
+          message: e.message || "Book Not Found!",
         })
       );
     }
@@ -68,24 +63,14 @@ router.post("/:isbn/lease", async (req, res, next) => {
 
     // Check if student exists
     if (!student) {
-      return next(
-        new CustomError({
-          code: 404,
-          message: "Student Not Found!",
-        })
-      );
+      throw studentNotFoundError;
     }
 
     const availableBooks = await fetchAvailableBooks();
 
     // Check if book is available
     if (!availableBooks.map((book) => book.isbn).includes(isbn)) {
-      return next(
-        new CustomError({
-          code: 404,
-          message: "Book Not Available",
-        })
-      );
+      throw bookNotAvailableError;
     }
 
     const bookToLease = availableBooks.find((book) => book.isbn === isbn);
@@ -99,6 +84,22 @@ router.post("/:isbn/lease", async (req, res, next) => {
         `Student w/ id: ${sID} has successfully leased book: ${bookName} w/ bookInvID: ${bookInvID}`
       );
   } catch (e) {
+    if (e === studentNotFoundError) {
+      return next(
+        new CustomError({
+          code: 404,
+          message: e.message || "Student Not Found!",
+        })
+      );
+    }
+    if (e === bookNotAvailableError) {
+      return next(
+        new CustomError({
+          code: 404,
+          message: e.message || "Book Not Found!",
+        })
+      );
+    }
     return next(e);
   }
 });

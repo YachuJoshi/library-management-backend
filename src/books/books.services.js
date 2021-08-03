@@ -34,12 +34,14 @@ const leaseBook = async (sID, bookInvID) => {
   );
 };
 
-const notFoundError = new Error("Book Not Found!");
+const bookNotFoundError = new Error("Book Not Found!");
+const bookNotAvailableError = new Error("Book Not Available");
 
 export {
   fetchAllBooks,
   fetchBookByISBN,
   fetchAvailableBooks,
   leaseBook,
-  notFoundError,
+  bookNotFoundError,
+  bookNotAvailableError,
 };
