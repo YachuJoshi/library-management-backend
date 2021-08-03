@@ -1,14 +1,17 @@
 import express from "express";
 import {
   leaseBook,
+  returnBook,
   fetchAllBooks,
   fetchBookByISBN,
   fetchAvailableBooks,
   bookNotFoundError,
+  bookNotInRecordError,
   bookNotAvailableError,
 } from "./books.services";
 import {
   fetchStudentById,
+  fetchStudentBookDetail,
   studentNotFoundError,
 } from "../students/student.services";
 import { CustomError } from "../error";
@@ -78,6 +81,7 @@ router.post("/:isbn/lease", async (req, res, next) => {
 
     // Lease book to student
     await leaseBook(sID, bookInvID);
+
     return res
       .status(201)
       .send(
@@ -93,6 +97,56 @@ router.post("/:isbn/lease", async (req, res, next) => {
       );
     }
     if (e === bookNotAvailableError) {
+      return next(
+        new CustomError({
+          code: 404,
+          message: e.message || "Book Not Found!",
+        })
+      );
+    }
+    return next(e);
+  }
+});
+
+router.put("/:isbn/return", async (req, res, next) => {
+  const { student_id: sID } = req.body;
+  const { isbn } = req.params;
+  try {
+    const student = await fetchStudentById(sID);
+
+    // Check if student exists
+    if (!student) {
+      throw studentNotFoundError;
+    }
+
+    const studentBookRecord = await fetchStudentBookDetail(sID);
+    const bookToReturn = studentBookRecord.find((book) => book.isbn === isbn);
+
+    // Check if student has that book
+    if (!bookToReturn) {
+      throw bookNotInRecordError;
+    }
+
+    const { book_id: bookInvID, book_name: bookName } = bookToReturn;
+
+    // Return the book
+    await returnBook(sID, bookInvID);
+
+    return res
+      .status(200)
+      .send(
+        `Student w/ id: ${sID} has successfully returned book: ${bookName} w/ bookInvID: ${bookInvID}`
+      );
+  } catch (e) {
+    if (e === studentNotFoundError) {
+      return next(
+        new CustomError({
+          code: 404,
+          message: e.message || "Student Not Found!",
+        })
+      );
+    }
+    if (e === bookNotInRecordError) {
       return next(
         new CustomError({
           code: 404,

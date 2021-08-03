@@ -34,14 +34,31 @@ const leaseBook = async (sID, bookInvID) => {
   );
 };
 
+const returnBook = async (sID, bookInvID) => {
+  // Delete record from student_book_issue
+  await pool.query(
+    "DELETE FROM student_book_issue WHERE student_id = $1 AND book_inv_id = $2",
+    [sID, bookInvID]
+  );
+
+  // Set is_available = true for the book just returned using book_inv_id
+  await pool.query(
+    "UPDATE book_inventory SET is_available = true WHERE book_inv_id = $1",
+    [bookInvID]
+  );
+};
+
 const bookNotFoundError = new Error("Book Not Found!");
 const bookNotAvailableError = new Error("Book Not Available");
+const bookNotInRecordError = new Error("Book Not In Student's Record");
 
 export {
   fetchAllBooks,
   fetchBookByISBN,
   fetchAvailableBooks,
   leaseBook,
+  returnBook,
   bookNotFoundError,
+  bookNotInRecordError,
   bookNotAvailableError,
 };
