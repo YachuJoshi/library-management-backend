@@ -1,8 +1,10 @@
 import express from "express";
-import { CustomError } from "../error";
+import {
+  CustomError,
+  studentNotFoundError,
+  wrongCredentialsError,
+} from "../error";
 import { login } from "./auth.services";
-
-import { studentNotFoundError } from "../students/student.services";
 
 const router = express.Router();
 
@@ -17,6 +19,14 @@ router.post("/login", async (req, res, next) => {
         new CustomError({
           code: 404,
           message: e.message,
+        })
+      );
+    }
+    if (e === wrongCredentialsError) {
+      return next(
+        new CustomError({
+          code: 400,
+          message: e.message || "Bad Request",
         })
       );
     }
