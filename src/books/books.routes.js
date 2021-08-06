@@ -1,20 +1,23 @@
 import express from "express";
+import { authenticate } from "../auth";
 import {
   leaseBook,
   returnBook,
   fetchAllBooks,
   fetchBookByISBN,
   fetchAvailableBooks,
-  bookNotFoundError,
-  bookNotInRecordError,
-  bookNotAvailableError,
 } from "./books.services";
 import {
   fetchStudentById,
   fetchStudentBookDetail,
   studentNotFoundError,
 } from "../students/student.services";
-import { CustomError } from "../error";
+import {
+  CustomError,
+  bookNotFoundError,
+  bookNotInRecordError,
+  bookNotAvailableError,
+} from "../error";
 
 const router = express.Router();
 
@@ -57,9 +60,19 @@ router.get("/:isbn", async (req, res, next) => {
   }
 });
 
-router.post("/:isbn/lease", async (req, res, next) => {
+router.post("/:isbn/lease", authenticate, async (req, res, next) => {
   const { student_id: sID } = req.body;
   const { isbn } = req.params;
+  const { student_id: loggedInStudentID } = res;
+
+  if (+sID !== +loggedInStudentID) {
+    return next(
+      new CustomError({
+        code: 403,
+        message: "Forbidden",
+      })
+    );
+  }
 
   try {
     const student = await fetchStudentById(sID);
@@ -108,9 +121,20 @@ router.post("/:isbn/lease", async (req, res, next) => {
   }
 });
 
-router.put("/:isbn/return", async (req, res, next) => {
+router.post("/:isbn/return", authenticate, async (req, res, next) => {
   const { student_id: sID } = req.body;
+  const { student_id: loggedInStudentID } = res.data[0];
   const { isbn } = req.params;
+
+  if (+sID !== +loggedInStudentID) {
+    return next(
+      new CustomError({
+        code: 403,
+        message: "Forbidden",
+      })
+    );
+  }
+
   try {
     const student = await fetchStudentById(sID);
 
