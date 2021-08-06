@@ -3,9 +3,10 @@ import {
   fetchAllStudents,
   fetchStudentById,
   fetchStudentBookDetail,
-  studentNotFoundError,
+  createStudent,
 } from "./student.services";
-import { CustomError } from "../error";
+import { authenticate } from "../auth";
+import { CustomError, studentNotFoundError } from "../error";
 
 const router = express.Router();
 
@@ -13,6 +14,16 @@ router.get("/", async (_, res, next) => {
   try {
     const students = await fetchAllStudents();
     return res.status(200).json(students);
+  } catch (e) {
+    return next(e);
+  }
+});
+
+router.post("/", async (req, res, next) => {
+  const studentInfo = req.body;
+  try {
+    createStudent(studentInfo);
+    return res.status(201);
   } catch (e) {
     return next(e);
   }
@@ -39,8 +50,19 @@ router.get("/:id", async (req, res, next) => {
   }
 });
 
-router.get("/:id/books", async (req, res, next) => {
+router.get("/:id/books", authenticate, async (req, res, next) => {
   const { id } = req.params;
+  const { student_id: loggedInStudentID } = res.data[0];
+
+  if (id !== loggedInStudentID) {
+    return next(
+      new CustomError({
+        code: 403,
+        message: "Forbidden",
+      })
+    );
+  }
+
   try {
     const studentBooksRecord = await fetchStudentBookDetail(id);
     if (studentBooksRecord.length > 0) {

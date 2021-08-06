@@ -48,17 +48,10 @@ const returnBook = async (sID, bookInvID) => {
   );
 };
 
-const bookNotFoundError = new Error("Book Not Found!");
-const bookNotAvailableError = new Error("Book Not Available");
-const bookNotInRecordError = new Error("Book Not In Student's Record");
-
 export {
   fetchAllBooks,
   fetchBookByISBN,
   fetchAvailableBooks,
   leaseBook,
   returnBook,
-  bookNotFoundError,
-  bookNotInRecordError,
-  bookNotAvailableError,
 };
