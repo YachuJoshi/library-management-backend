@@ -1,5 +1,4 @@
 import { pool } from "../db";
-import { encrypt } from "../utils";
 
 const fetchAllStudents = async () => {
   const { rows: students } = await pool.query("SELECT * FROM student");
@@ -30,7 +29,7 @@ const fetchStudentBookDetail = async (id) => {
   return books;
 };
 
-const createStudent = async (studentInfo) => {
+const createStudent = async (studentInfo, userID) => {
   if (!studentInfo) {
     return;
   }
@@ -41,10 +40,7 @@ const createStudent = async (studentInfo) => {
     phone_no: phoneNo,
     roll_no: rollNo,
     email,
-    username,
-    password,
   } = studentInfo;
-  const hashedPassword = await encrypt(password);
   await pool.query(
     `INSERT INTO student(
     first_name,
@@ -53,20 +49,10 @@ const createStudent = async (studentInfo) => {
     phone_no,
     roll_no,
     email,
-    username,
-    password
+    user_id
   )
-  VALUES($1, $2, $3, $4, $5, $6, $7, $8)`,
-    [
-      firstName,
-      lastName,
-      address,
-      phoneNo,
-      rollNo,
-      email,
-      username,
-      hashedPassword,
-    ]
+  VALUES($1, $2, $3, $4, $5, $6, $7)`,
+    [firstName, lastName, address, phoneNo, rollNo, email, userID]
   );
 };
 

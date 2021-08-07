@@ -5,6 +5,7 @@ import {
   fetchStudentBookDetail,
   createStudent,
 } from "./student.services";
+import { createUser } from "../users";
 import { authenticate } from "../auth";
 import { CustomError, studentNotFoundError } from "../error";
 
@@ -20,10 +21,13 @@ router.get("/", async (_, res, next) => {
 });
 
 router.post("/", async (req, res, next) => {
-  const studentInfo = req.body;
+  const userDetails = req.body;
+  const { username, password, role, ...studentInfo } = userDetails;
+
   try {
-    createStudent(studentInfo);
-    return res.status(201);
+    const { user_id: userID } = await createUser(username, password, +role);
+    await createStudent(studentInfo, userID);
+    return res.status(200).send("Student Created Successfully");
   } catch (e) {
     return next(e);
   }
