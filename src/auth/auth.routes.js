@@ -4,7 +4,7 @@ import {
   studentNotFoundError,
   wrongCredentialsError,
 } from "../error";
-import { login } from "./auth.services";
+import { login, refresh } from "./auth.services";
 
 const router = express.Router();
 
@@ -30,6 +30,19 @@ router.post("/login", async (req, res, next) => {
         })
       );
     }
+    return next(e);
+  }
+});
+
+router.post("/refresh", async (req, res, next) => {
+  const { refreshToken } = req.body;
+  if (!refreshToken) {
+    return res.status(401);
+  }
+  try {
+    const { token } = await refresh(refreshToken);
+    return res.status(200).json(token);
+  } catch (e) {
     return next(e);
   }
 });

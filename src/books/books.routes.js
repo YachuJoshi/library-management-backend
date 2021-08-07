@@ -63,7 +63,7 @@ router.get("/:isbn", async (req, res, next) => {
 router.post("/:isbn/lease", authenticate, async (req, res, next) => {
   const { student_id: sID } = req.body;
   const { isbn } = req.params;
-  const { student_id: loggedInStudentID } = res;
+  const { student_id: loggedInStudentID } = res.data[0];
 
   if (+sID !== +loggedInStudentID) {
     return next(

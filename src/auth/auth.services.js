@@ -1,5 +1,5 @@
 import { pool } from "../db";
-import { compareHashed, generateAuthToken } from "../utils";
+import { compareHashed, generateAuthToken, verifyRefreshToken } from "../utils";
 import { studentNotFoundError, wrongCredentialsError } from "../error";
 
 const login = async (username, password) => {
@@ -22,4 +22,10 @@ const login = async (username, password) => {
   return { token, student };
 };
 
-export { login };
+const refresh = async (refreshToken) => {
+  const { data } = verifyRefreshToken(refreshToken);
+  const token = generateAuthToken(data);
+  return { token };
+};
+
+export { login, refresh };

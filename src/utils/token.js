@@ -1,7 +1,9 @@
 import jwt from "jsonwebtoken";
 
 const generateAuthToken = (data) => {
-  const accessToken = jwt.sign({ data }, process.env.ACCESS_TOKEN_SECRET);
+  const accessToken = jwt.sign({ data }, process.env.ACCESS_TOKEN_SECRET, {
+    expiresIn: "15m",
+  });
   const refreshToken = jwt.sign({ data }, process.env.REFRESH_TOKEN_SECRET);
 
   return { accessToken, refreshToken };
