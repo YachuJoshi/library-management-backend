@@ -1,25 +1,34 @@
 import { pool } from "../db";
+import { ROLES } from "../constants";
+import { fetchStudentByUserID } from "../students/student.services";
+import { fetchAdminByUserID } from "../admin/admin.services";
 import { compareHashed, generateAuthToken, verifyRefreshToken } from "../utils";
-import { studentNotFoundError, wrongCredentialsError } from "../error";
+import { entityNotFoundError, wrongCredentialsError } from "../error";
 
 const login = async (username, password) => {
-  const { rows: student } = await pool.query(
-    "SELECT * FROM student WHERE username = $1",
+  let userDetails;
+  const { rows: user } = await pool.query(
+    "SELECT * FROM users WHERE username = $1",
     [username]
   );
-  if (student.length <= 0) {
-    throw studentNotFoundError;
+  if (user.length <= 0) {
+    throw entityNotFoundError;
   }
-  const { password: passwordInDB } = student[0];
+  const { user_id: userID, role, password: passwordInDB } = user[0];
   const matchPassword = await compareHashed(password, passwordInDB);
 
   if (!matchPassword) {
     throw wrongCredentialsError;
   }
 
-  const token = generateAuthToken(student);
-
-  return { token, student };
+  if (+role === ROLES.STUDENT) {
+    userDetails = await fetchStudentByUserID(userID);
+  }
+  if (+role === ROLES.ADMIN) {
+    userDetails = await fetchAdminByUserID(userID);
+  }
+  const token = generateAuthToken(userDetails);
+  return { token };
 };
 
 const refresh = async (refreshToken) => {

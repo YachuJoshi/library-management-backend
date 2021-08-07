@@ -4,6 +4,7 @@ const bookNotAvailableError = new Error("Book Not Available");
 const bookNotInRecordError = new Error("Book Not In Student's Record");
 const wrongCredentialsError = new Error("Invalid Username / Password");
 const unauthorizedError = new Error("Unauthorized");
+const entityNotFoundError = new Error("Entity Not Found");
 const forbiddenError = new Error("Forbidden");
 
 export {
@@ -12,6 +13,7 @@ export {
   bookNotAvailableError,
   bookNotInRecordError,
   wrongCredentialsError,
+  entityNotFoundError,
   unauthorizedError,
   forbiddenError,
 };

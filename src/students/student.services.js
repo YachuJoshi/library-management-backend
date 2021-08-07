@@ -14,6 +14,14 @@ const fetchStudentById = async (id) => {
   return student[0];
 };
 
+const fetchStudentByUserID = async (userID) => {
+  const { rows: student } = await pool.query(
+    "SELECT * FROM student WHERE user_id = $1",
+    [userID]
+  );
+  return student[0];
+};
+
 const fetchStudentBookDetail = async (id) => {
   const { rows: books } = await pool.query(
     "SELECT * FROM student_book_detail WHERE student_id = $1",
@@ -65,6 +73,7 @@ const createStudent = async (studentInfo) => {
 export {
   fetchAllStudents,
   fetchStudentById,
+  fetchStudentByUserID,
   fetchStudentBookDetail,
   createStudent,
 };

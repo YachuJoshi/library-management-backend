@@ -52,7 +52,7 @@ router.get("/:id", async (req, res, next) => {
 
 router.get("/:id/books", authenticate, async (req, res, next) => {
   const { id } = req.params;
-  const { student_id: loggedInStudentID } = res.data[0];
+  const { student_id: loggedInStudentID } = res.data;
 
   if (id !== loggedInStudentID) {
     return next(
