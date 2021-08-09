@@ -21,4 +21,18 @@ const authenticate = async (req, res, next) => {
   }
 };
 
-export { authenticate };
+const authRole = (role) => {
+  return (_, res, next) => {
+    if (res.data.role !== role) {
+      return next(
+        new CustomError({
+          code: 403,
+          message: "Forbidden",
+        })
+      );
+    }
+    return next();
+  };
+};
+
+export { authenticate, authRole };

@@ -27,8 +27,9 @@ const login = async (username, password) => {
   if (+role === ROLES.ADMIN) {
     userDetails = await fetchAdminByUserID(userID);
   }
+  userDetails = { ...userDetails, role };
   const token = generateAuthToken(userDetails);
-  return { token };
+  return { token, userDetails };
 };
 
 const refresh = async (refreshToken) => {
