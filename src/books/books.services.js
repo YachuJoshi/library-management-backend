@@ -5,6 +5,17 @@ const fetchAllBooks = async () => {
   return books;
 };
 
+const createBook = async (bookInfo, authorID, publicationID) => {
+  const { isbn, name, quantity } = bookInfo;
+  await pool.query(
+    `
+    INSERT INTO book (isbn, name, quantity, author_id, publication_id)
+    VALUES ($1, $2, $3, $4, $5)
+    `,
+    [isbn, name, quantity, authorID, publicationID]
+  );
+};
+
 const fetchBookByISBN = async (isbn) => {
   const { rows: book } = await pool.query(
     "SELECT * FROM book WHERE isbn = $1",
@@ -49,6 +60,7 @@ const returnBook = async (sID, bookInvID) => {
 };
 
 export {
+  createBook,
   fetchAllBooks,
   fetchBookByISBN,
   fetchAvailableBooks,
