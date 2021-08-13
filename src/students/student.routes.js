@@ -22,10 +22,10 @@ router.get("/", async (_, res, next) => {
 
 router.post("/", async (req, res, next) => {
   const userDetails = req.body;
-  const { username, password, role, ...studentInfo } = userDetails;
+  const { userName, password, role, ...studentInfo } = userDetails;
 
   try {
-    const { user_id: userID } = await createUser(username, password, +role);
+    const { user_id: userID } = await createUser(userName, password, +role);
     await createStudent(studentInfo, userID);
     return res.status(200).send("Student Created Successfully");
   } catch (e) {

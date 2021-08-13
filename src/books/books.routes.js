@@ -8,6 +8,7 @@ import {
   fetchAllBooks,
   fetchBookByISBN,
   fetchAvailableBooks,
+  fetchAllUniqueBooks,
   createBook,
 } from "./books.services";
 import {
@@ -29,6 +30,15 @@ const router = express.Router();
 router.get("/", async (_, res, next) => {
   try {
     const books = await fetchAllBooks();
+    return res.status(200).json(books);
+  } catch (e) {
+    return next(e);
+  }
+});
+
+router.get("/all", async (_, res, next) => {
+  try {
+    const books = await fetchAllUniqueBooks();
     return res.status(200).json(books);
   } catch (e) {
     return next(e);

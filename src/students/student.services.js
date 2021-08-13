@@ -33,14 +33,8 @@ const createStudent = async (studentInfo, userID) => {
   if (!studentInfo) {
     return;
   }
-  const {
-    first_name: firstName,
-    last_name: lastName,
-    address,
-    phone_no: phoneNo,
-    roll_no: rollNo,
-    email,
-  } = studentInfo;
+  const { firstName, lastName, address, phoneNumber, rollNumber, email } =
+    studentInfo;
   await pool.query(
     `INSERT INTO student(
     first_name,
@@ -52,7 +46,7 @@ const createStudent = async (studentInfo, userID) => {
     user_id
   )
   VALUES($1, $2, $3, $4, $5, $6, $7)`,
-    [firstName, lastName, address, phoneNo, rollNo, email, userID]
+    [firstName, lastName, address, phoneNumber, rollNumber, email, userID]
   );
 };
 

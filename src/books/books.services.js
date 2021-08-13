@@ -5,6 +5,11 @@ const fetchAllBooks = async () => {
   return books;
 };
 
+const fetchAllUniqueBooks = async () => {
+  const { rows: books } = await pool.query("SELECT * FROM unique_book_detail");
+  return books;
+};
+
 const createBook = async (bookInfo, authorID, publicationID) => {
   const { isbn, name, quantity } = bookInfo;
   await pool.query(
@@ -64,6 +69,7 @@ export {
   fetchAllBooks,
   fetchBookByISBN,
   fetchAvailableBooks,
+  fetchAllUniqueBooks,
   leaseBook,
   returnBook,
 };
