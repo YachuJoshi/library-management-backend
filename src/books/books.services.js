@@ -29,6 +29,14 @@ const fetchBookByISBN = async (isbn) => {
   return book[0];
 };
 
+const fetchBookInventoryItem = async (isbn, bookID) => {
+  const { rows: book } = await pool.query(
+    "SELECT * FROM book_inv_detail WHERE isbn = $1 AND book_id = $2",
+    [isbn, bookID]
+  );
+  return book[0];
+};
+
 const fetchAvailableBooks = async () => {
   const { rows: availableBooks } = await pool.query(
     "SELECT * FROM books_available"
@@ -70,6 +78,7 @@ export {
   fetchBookByISBN,
   fetchAvailableBooks,
   fetchAllUniqueBooks,
+  fetchBookInventoryItem,
   leaseBook,
   returnBook,
 };

@@ -9,6 +9,7 @@ import {
   fetchBookByISBN,
   fetchAvailableBooks,
   fetchAllUniqueBooks,
+  fetchBookInventoryItem,
   createBook,
 } from "./books.services";
 import {
@@ -83,8 +84,15 @@ router.get("/available", async (_, res, next) => {
 
 router.get("/:isbn", async (req, res, next) => {
   const { isbn } = req.params;
+  const { bookId } = req.query;
+
   try {
-    const book = await fetchBookByISBN(isbn);
+    let book;
+    if (!bookId) {
+      book = await fetchBookByISBN(isbn);
+    } else {
+      book = await fetchBookInventoryItem(isbn, bookId);
+    }
     if (!book) {
       throw bookNotFoundError;
     }
@@ -213,5 +221,27 @@ router.post(
     }
   }
 );
+
+// router.get("/:isbn?bookID", async (req, res, next) => {
+//   const { isbn } = req.params;
+//   const { bookID } = req.query;
+//   try {
+//     const book = await fetchBookInventoryItem(isbn, bookID);
+//     if (!book) {
+//       throw bookNotFoundError;
+//     }
+//     return res.status(200).json(book);
+//   } catch (e) {
+//     if (e === bookNotFoundError) {
+//       return next(
+//         new CustomError({
+//           code: 404,
+//           message: e.message || "Book Not Found!",
+//         })
+//       );
+//     }
+//     return next(e);
+//   }
+// });
 
 export default router;
