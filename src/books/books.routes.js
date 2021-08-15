@@ -116,6 +116,7 @@ router.post(
   authRole(ROLES.STUDENT),
   async (req, res, next) => {
     const { isbn } = req.params;
+    const { bookId } = req.query;
     const { student_id: sID } = res.data;
 
     try {
@@ -133,8 +134,10 @@ router.post(
         throw bookNotAvailableError;
       }
 
-      const bookToLease = availableBooks.find((book) => book.isbn === isbn);
-      const { book_inv_id: bookInvID, book_name: bookName } = bookToLease;
+      const bookToLease = availableBooks.find(
+        (book) => book.isbn === isbn && book.book_id === bookId
+      );
+      const { book_id: bookInvID, book_name: bookName } = bookToLease;
 
       // Lease book to student
       await leaseBook(sID, bookInvID);
@@ -171,8 +174,9 @@ router.post(
   authenticate,
   authRole(ROLES.STUDENT),
   async (req, res, next) => {
-    const { student_id: sID } = res.data;
     const { isbn } = req.params;
+    const { bookId } = req.query;
+    const { student_id: sID } = res.data;
 
     try {
       const student = await fetchStudentById(sID);
@@ -183,7 +187,9 @@ router.post(
       }
 
       const studentBookRecord = await fetchStudentBookDetail(sID);
-      const bookToReturn = studentBookRecord.find((book) => book.isbn === isbn);
+      const bookToReturn = studentBookRecord.find(
+        (book) => book.isbn === isbn && book.book_id === bookId
+      );
 
       // Check if student has that book
       if (!bookToReturn) {
@@ -221,27 +227,5 @@ router.post(
     }
   }
 );
-
-// router.get("/:isbn?bookID", async (req, res, next) => {
-//   const { isbn } = req.params;
-//   const { bookID } = req.query;
-//   try {
-//     const book = await fetchBookInventoryItem(isbn, bookID);
-//     if (!book) {
-//       throw bookNotFoundError;
-//     }
-//     return res.status(200).json(book);
-//   } catch (e) {
-//     if (e === bookNotFoundError) {
-//       return next(
-//         new CustomError({
-//           code: 404,
-//           message: e.message || "Book Not Found!",
-//         })
-//       );
-//     }
-//     return next(e);
-//   }
-// });
 
 export default router;
