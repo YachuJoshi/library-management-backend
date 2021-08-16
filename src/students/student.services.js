@@ -21,6 +21,13 @@ const fetchStudentByUserID = async (userID) => {
   return student[0];
 };
 
+const fetchAllStudentBooksRecord = async () => {
+  const { rows: studentBooksRecord } = await pool.query(
+    `SELECT * FROM student_book_detail`
+  );
+  return studentBooksRecord;
+};
+
 const fetchStudentBookDetail = async (id) => {
   const { rows: books } = await pool.query(
     "SELECT * FROM student_book_detail WHERE student_id = $1",
@@ -55,5 +62,6 @@ export {
   fetchStudentById,
   fetchStudentByUserID,
   fetchStudentBookDetail,
+  fetchAllStudentBooksRecord,
   createStudent,
 };

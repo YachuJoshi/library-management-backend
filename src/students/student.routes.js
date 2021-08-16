@@ -3,10 +3,12 @@ import {
   fetchAllStudents,
   fetchStudentById,
   fetchStudentBookDetail,
+  fetchAllStudentBooksRecord,
   createStudent,
 } from "./student.services";
+import { ROLES } from "../constants";
 import { createUser } from "../users";
-import { authenticate } from "../auth";
+import { authenticate, authRole } from "../auth";
 import { CustomError, studentNotFoundError } from "../error";
 
 const router = express.Router();
@@ -32,6 +34,20 @@ router.post("/", async (req, res, next) => {
     return next(e);
   }
 });
+
+router.get(
+  "/books",
+  authenticate,
+  authRole(ROLES.ADMIN),
+  async (_, res, next) => {
+    try {
+      const studentBooksRecord = await fetchAllStudentBooksRecord();
+      return res.status(200).json(studentBooksRecord);
+    } catch (e) {
+      return next(e);
+    }
+  }
+);
 
 router.get("/:id", async (req, res, next) => {
   const { id } = req.params;
