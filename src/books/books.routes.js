@@ -52,12 +52,12 @@ router.post(
   authRole(ROLES.ADMIN),
   async (req, res, next) => {
     const bookDetails = req.body;
-    const { author, publication, genre, ...bookInfo } = bookDetails;
+    const { author, publication, genres, ...bookInfo } = bookDetails;
 
     try {
       const authorID = await getAuthorID(author);
       const publicationID = await getPublicationID(publication);
-      const genreIDs = await getGenreIDs(genre);
+      const genreIDs = await getGenreIDs(genres);
 
       await createBook(bookInfo, authorID, publicationID);
       for (let i = 0; i < bookInfo.quantity; i++) {
