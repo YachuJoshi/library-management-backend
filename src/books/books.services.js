@@ -72,6 +72,35 @@ const returnBook = async (sID, bookInvID) => {
   );
 };
 
+const deleteBook = async (isbn) => {
+  await pool.query("DELETE FROM book WHERE isbn = $1", [isbn]);
+};
+
+const deleteBookGenreRecord = async (isbn) => {
+  await pool.query("DELETE FROM book_genre WHERE isbn = $1", [isbn]);
+};
+
+const deleteBookItem = async (isbn, bookInvID) => {
+  await pool.query(
+    "DELETE FROM book_inventory WHERE isbn = $1 AND book_inv_id = $2",
+    [isbn, bookInvID]
+  );
+};
+
+const getBookQuantity = async (isbn) => {
+  const { rows: book } = await pool.query(
+    "SELECT quantity FROM book WHERE isbn = $1",
+    [isbn]
+  );
+  return book[0];
+};
+
+const decreaseBookQuantity = async (isbn) => {
+  await pool.query("UPDATE book SET quantity = quantity - 1 WHERE isbn = $1", [
+    isbn,
+  ]);
+};
+
 export {
   createBook,
   fetchAllBooks,
@@ -79,6 +108,11 @@ export {
   fetchAvailableBooks,
   fetchAllUniqueBooks,
   fetchBookInventoryItem,
+  deleteBook,
+  deleteBookGenreRecord,
+  deleteBookItem,
+  getBookQuantity,
+  decreaseBookQuantity,
   leaseBook,
   returnBook,
 };

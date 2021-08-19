@@ -10,6 +10,11 @@ import {
   fetchAvailableBooks,
   fetchAllUniqueBooks,
   fetchBookInventoryItem,
+  deleteBookGenreRecord,
+  deleteBook,
+  getBookQuantity,
+  decreaseBookQuantity,
+  deleteBookItem,
   createBook,
 } from "./books.services";
 import {
@@ -67,6 +72,41 @@ router.post(
         await createBookGenre(bookInfo.isbn, genreID);
       });
       return res.status(200).send("Book Created Successfully!");
+    } catch (e) {
+      return next(e);
+    }
+  }
+);
+
+router.delete(
+  "/:isbn",
+  authenticate,
+  authRole(ROLES.ADMIN),
+  async (req, res, next) => {
+    const { isbn } = req.params;
+    const { bookId } = req.query;
+
+    try {
+      const availableBooks = await fetchAvailableBooks();
+      const isBookAvailable = availableBooks.find(
+        (book) => book.isbn === isbn && book.book_id === bookId
+      );
+
+      if (!isBookAvailable) {
+        throw bookNotAvailableError;
+      }
+
+      const { quantity } = await getBookQuantity(isbn);
+      await deleteBookItem(isbn, bookId);
+
+      if (quantity > 1) {
+        await decreaseBookQuantity(isbn);
+      } else {
+        await deleteBookGenreRecord(isbn);
+        await deleteBook(isbn);
+      }
+
+      return res.status(204);
     } catch (e) {
       return next(e);
     }
