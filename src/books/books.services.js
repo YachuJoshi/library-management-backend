@@ -10,6 +10,21 @@ const fetchAllUniqueBooks = async () => {
   return books;
 };
 
+const fetchBookDetailByISBN = async (isbn) => {
+  const { rows: books } = await pool.query(
+    "SELECT * FROM book_detail WHERE isbn = $1",
+    [isbn]
+  );
+  const { rows: bookGenres } = await pool.query(
+    "SELECT * FROM book_genre_detail WHERE isbn = $1",
+    [isbn]
+  );
+  return {
+    ...books[0],
+    genres: bookGenres.map((bookGenre) => bookGenre.genre),
+  };
+};
+
 const createBook = async (bookInfo, authorID, publicationID) => {
   const { isbn, name, quantity } = bookInfo;
   await pool.query(
@@ -118,6 +133,7 @@ export {
   fetchAvailableBooks,
   fetchAllUniqueBooks,
   fetchBookInventoryItem,
+  fetchBookDetailByISBN,
   updateBook,
   deleteBook,
   deleteBookGenreRecord,

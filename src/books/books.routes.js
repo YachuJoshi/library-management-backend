@@ -10,6 +10,7 @@ import {
   fetchAvailableBooks,
   fetchAllUniqueBooks,
   fetchBookInventoryItem,
+  fetchBookDetailByISBN,
   updateBook,
   deleteBookGenreRecord,
   deleteBook,
@@ -39,15 +40,6 @@ const router = express.Router();
 router.get("/", async (_, res, next) => {
   try {
     const books = await fetchAllBooks();
-    return res.status(200).json(books);
-  } catch (e) {
-    return next(e);
-  }
-});
-
-router.get("/all", async (_, res, next) => {
-  try {
-    const books = await fetchAllUniqueBooks();
     return res.status(200).json(books);
   } catch (e) {
     return next(e);
@@ -157,6 +149,25 @@ router.get("/available", async (_, res, next) => {
   try {
     const availableBooks = await fetchAvailableBooks();
     return res.status(200).json(availableBooks);
+  } catch (e) {
+    return next(e);
+  }
+});
+
+router.get("/details", async (_, res, next) => {
+  try {
+    const books = await fetchAllUniqueBooks();
+    return res.status(200).json(books);
+  } catch (e) {
+    return next(e);
+  }
+});
+
+router.get("/details/:isbn", async (req, res, next) => {
+  const { isbn } = req.params;
+  try {
+    const book = await fetchBookDetailByISBN(isbn);
+    return res.status(200).json(book);
   } catch (e) {
     return next(e);
   }
