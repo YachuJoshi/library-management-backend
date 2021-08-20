@@ -28,13 +28,10 @@ import {
   bookNotFoundError,
   bookNotInRecordError,
   bookNotAvailableError,
+  optionNotAvailableError,
 } from "../error";
-import {
-  createBookInventory,
-  createBookGenre,
-  fetchBookGenre,
-  removeBookGenre,
-} from "../extra";
+import { updateBookInventory, updateBookGenres } from "./updateBook.utils";
+import { createBookGenre } from "../extra";
 import { getAuthorID, getPublicationID, getGenreIDs } from "./createBook.utils";
 
 const router = express.Router();
@@ -71,9 +68,7 @@ router.post(
       const genreIDs = await getGenreIDs(genres);
 
       await createBook(bookInfo, authorID, publicationID);
-      for (let i = 0; i < bookInfo.quantity; i++) {
-        createBookInventory(bookInfo.isbn).then();
-      }
+      await updateBookInventory(bookInfo.isbn, bookInfo.quantity);
       genreIDs.forEach(async (genreID) => {
         await createBookGenre(bookInfo.isbn, genreID);
       });
@@ -89,7 +84,6 @@ router.patch(
   authenticate,
   authRole(ROLES.ADMIN),
   async (req, res, next) => {
-    const { isbn: _currentBookISBN } = req.params;
     const bookDetails = req.body;
     const { author, publication, genres, ...bookInfo } = bookDetails;
     const { quantity: newQuantity } = bookInfo;
@@ -97,38 +91,28 @@ router.patch(
     try {
       const updatedAuthorID = await getAuthorID(author);
       const updatedPublicationID = await getPublicationID(publication);
-      const updatedGenresIDs = await getGenreIDs(genres);
 
       const { quantity: prevQuantity } = await getBookQuantity(bookInfo.isbn);
       if (newQuantity < prevQuantity) {
-        throw new Error("Option Not Available");
+        throw optionNotAvailableError;
       }
-
-      await updateBook(bookInfo, updatedAuthorID, updatedPublicationID);
 
       const netQuantity = newQuantity - prevQuantity;
-      for (let i = 0; i < netQuantity; i++) {
-        createBookInventory(bookInfo.isbn).then();
-      }
 
-      const prevGenresIDs = await fetchBookGenre(_currentBookISBN);
-      const toAddBookGenres = updatedGenresIDs.filter(
-        (genre) => !prevGenresIDs.includes(genre)
-      );
-      toAddBookGenres.forEach(async (genreID) => {
-        await createBookGenre(bookInfo.isbn, genreID);
-      });
-
-      const toRemoveBookGenres = prevGenresIDs.filter(
-        (genre) => !updatedGenresIDs.includes(genre)
-      );
-
-      toRemoveBookGenres.forEach(async (genreID) => {
-        await removeBookGenre(bookInfo.isbn, genreID);
-      });
+      await updateBook(bookInfo, updatedAuthorID, updatedPublicationID);
+      await updateBookInventory(bookInfo.isbn, netQuantity);
+      await updateBookGenres(bookInfo.isbn, genres);
 
       return res.status(204).send();
     } catch (e) {
+      if (e === optionNotAvailableError) {
+        return next(
+          new CustomError({
+            code: 400,
+            message: e.message || "Bad Request",
+          })
+        );
+      }
       return next(e);
     }
   }

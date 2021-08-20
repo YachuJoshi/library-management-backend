@@ -6,6 +6,7 @@ const wrongCredentialsError = new Error("Invalid Username / Password");
 const unauthorizedError = new Error("Unauthorized");
 const entityNotFoundError = new Error("Entity Not Found");
 const forbiddenError = new Error("Forbidden");
+const optionNotAvailableError = new Error("Option Not Available");
 
 export {
   studentNotFoundError,
@@ -16,4 +17,5 @@ export {
   entityNotFoundError,
   unauthorizedError,
   forbiddenError,
+  optionNotAvailableError,
 };
