@@ -1,3 +1,4 @@
+/* eslint-disable no-plusplus, no-await-in-loop */
 import {
   fetchAllAuthors,
   fetchAuthorByName,
@@ -45,7 +46,8 @@ export const getGenreIDs = async (bookGenres) => {
   const genres = await fetchAllGenres();
   const genreTitles = genres.map((genre) => genre.title);
 
-  bookGenres.forEach(async (bookGenre) => {
+  for (let i = 0; i < bookGenres.length; i++) {
+    const bookGenre = bookGenres[i];
     if (!genreTitles.includes(bookGenre)) {
       const { genre_id: id } = await createGenre(bookGenre);
       genreIDs.push(id);
@@ -53,7 +55,7 @@ export const getGenreIDs = async (bookGenres) => {
       const { genre_id: id } = await fetchGenreByTitle(bookGenre);
       genreIDs.push(id);
     }
-  });
+  }
 
   return genreIDs;
 };

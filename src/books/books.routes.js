@@ -10,6 +10,7 @@ import {
   fetchAvailableBooks,
   fetchAllUniqueBooks,
   fetchBookInventoryItem,
+  updateBook,
   deleteBookGenreRecord,
   deleteBook,
   getBookQuantity,
@@ -28,7 +29,12 @@ import {
   bookNotInRecordError,
   bookNotAvailableError,
 } from "../error";
-import { createBookInventory, createBookGenre } from "../extra";
+import {
+  createBookInventory,
+  createBookGenre,
+  fetchBookGenre,
+  removeBookGenre,
+} from "../extra";
 import { getAuthorID, getPublicationID, getGenreIDs } from "./createBook.utils";
 
 const router = express.Router();
@@ -78,6 +84,56 @@ router.post(
   }
 );
 
+router.patch(
+  "/:isbn",
+  authenticate,
+  authRole(ROLES.ADMIN),
+  async (req, res, next) => {
+    const { isbn: _currentBookISBN } = req.params;
+    const bookDetails = req.body;
+    const { author, publication, genres, ...bookInfo } = bookDetails;
+    const { quantity: newQuantity } = bookInfo;
+
+    try {
+      const updatedAuthorID = await getAuthorID(author);
+      const updatedPublicationID = await getPublicationID(publication);
+      const updatedGenresIDs = await getGenreIDs(genres);
+
+      const { quantity: prevQuantity } = await getBookQuantity(bookInfo.isbn);
+      if (newQuantity < prevQuantity) {
+        throw new Error("Option Not Available");
+      }
+
+      await updateBook(bookInfo, updatedAuthorID, updatedPublicationID);
+
+      const netQuantity = newQuantity - prevQuantity;
+      for (let i = 0; i < netQuantity; i++) {
+        createBookInventory(bookInfo.isbn).then();
+      }
+
+      const prevGenresIDs = await fetchBookGenre(_currentBookISBN);
+      const toAddBookGenres = updatedGenresIDs.filter(
+        (genre) => !prevGenresIDs.includes(genre)
+      );
+      toAddBookGenres.forEach(async (genreID) => {
+        await createBookGenre(bookInfo.isbn, genreID);
+      });
+
+      const toRemoveBookGenres = prevGenresIDs.filter(
+        (genre) => !updatedGenresIDs.includes(genre)
+      );
+
+      toRemoveBookGenres.forEach(async (genreID) => {
+        await removeBookGenre(bookInfo.isbn, genreID);
+      });
+
+      return res.status(204).send();
+    } catch (e) {
+      return next(e);
+    }
+  }
+);
+
 router.delete(
   "/:isbn",
   authenticate,
@@ -106,7 +162,7 @@ router.delete(
         await deleteBook(isbn);
       }
 
-      return res.status(204);
+      return res.status(202).send("Book Deleted Successfully!");
     } catch (e) {
       return next(e);
     }

@@ -21,6 +21,16 @@ const createBook = async (bookInfo, authorID, publicationID) => {
   );
 };
 
+const updateBook = async (bookInfo, authorID, publicationID) => {
+  const { isbn, name, quantity } = bookInfo;
+  await pool.query(
+    `UPDATE book
+    SET name = $1, quantity = $2, author_id = $3, publication_id = $4
+    WHERE isbn = $5`,
+    [name, quantity, authorID, publicationID, isbn]
+  );
+};
+
 const fetchBookByISBN = async (isbn) => {
   const { rows: book } = await pool.query(
     "SELECT * FROM book WHERE isbn = $1",
@@ -108,6 +118,7 @@ export {
   fetchAvailableBooks,
   fetchAllUniqueBooks,
   fetchBookInventoryItem,
+  updateBook,
   deleteBook,
   deleteBookGenreRecord,
   deleteBookItem,
