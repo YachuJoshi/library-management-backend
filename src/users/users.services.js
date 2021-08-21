@@ -1,7 +1,7 @@
 import { pool } from "../db";
 import { encrypt } from "../utils";
 
-const createUser = async (username, password, role) => {
+export const createUser = async (username, password, role) => {
   const hashedPassword = await encrypt(password);
   const { rows: user } = await pool.query(
     `INSERT INTO users(
@@ -14,4 +14,10 @@ const createUser = async (username, password, role) => {
   return user[0];
 };
 
-export { createUser };
+export const getUserByID = async (id) => {
+  const { rows: user } = await pool.query(
+    `SELECT * FROM users WHERE user_id = $1`,
+    [id]
+  );
+  return user[0];
+};
