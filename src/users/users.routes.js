@@ -1,13 +1,12 @@
 import express from "express";
 import { ROLES } from "../constants";
-import { authenticate } from "../auth";
 import { fetchAdminByUserID } from "../admin";
 import { fetchStudentByUserID } from "../students";
 import { getUserByID } from "./users.services";
 
 const router = express.Router();
 
-router.get("/", authenticate, async (req, res, next) => {
+router.get("/", async (req, res, next) => {
   const { userId } = req.query;
 
   try {

@@ -28,6 +28,25 @@ const fetchAllStudentBooksRecord = async () => {
   return studentBooksRecord;
 };
 
+const fetchStudentBookIssueDetail = async (id) => {
+  const { rows: studentBookIssueDetail } = await pool.query(
+    `SELECT * FROM student_book_issue_detail WHERE student_id = $1`,
+    [id]
+  );
+  return studentBookIssueDetail;
+};
+
+const fetchStudentLateFeeDetails = async (id) => {
+  const { rows: studentFeeDetails } = await pool.query(
+    `SELECT *
+      FROM student_book_issue_detail AS t
+      WHERE student_id = $1
+      AND NOW()::DATE - t.issue_date > 40`,
+    [id]
+  );
+  return studentFeeDetails;
+};
+
 const fetchStudentBookDetail = async (id) => {
   const { rows: books } = await pool.query(
     "SELECT * FROM student_book_detail WHERE student_id = $1",
@@ -63,5 +82,7 @@ export {
   fetchStudentByUserID,
   fetchStudentBookDetail,
   fetchAllStudentBooksRecord,
+  fetchStudentBookIssueDetail,
+  fetchStudentLateFeeDetails,
   createStudent,
 };
