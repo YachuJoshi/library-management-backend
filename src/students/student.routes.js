@@ -152,18 +152,8 @@ router.get("/:id/books/details", authenticate, async (req, res, next) => {
   }
 });
 
-router.get("/:id/fee", authenticate, async (req, res, next) => {
+router.get("/:id/fee", async (req, res, next) => {
   const { id } = req.params;
-  const { student_id: loggedInStudentID } = res.data;
-
-  if (+id !== +loggedInStudentID) {
-    return next(
-      new CustomError({
-        code: 403,
-        message: "Forbidden",
-      })
-    );
-  }
 
   try {
     const studentFeeDetails = await fetchStudentLateFeeDetails(id);

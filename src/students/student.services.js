@@ -41,7 +41,7 @@ const fetchStudentLateFeeDetails = async (id) => {
     `SELECT *
       FROM student_book_issue_detail AS t
       WHERE student_id = $1
-      AND NOW()::DATE - t.issue_date > 40`,
+      AND NOW()::DATE - t.issue_date > 90`,
     [id]
   );
   return studentFeeDetails;
