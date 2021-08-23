@@ -49,7 +49,7 @@ const fetchStudentLateFeeDetails = async (id) => {
 
 const fetchStudentBookDetail = async (id) => {
   const { rows: books } = await pool.query(
-    "SELECT * FROM student_book_detail WHERE student_id = $1",
+    "SELECT * FROM student_book_issue_detail WHERE student_id = $1",
     [id]
   );
   return books;

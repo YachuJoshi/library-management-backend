@@ -59,7 +59,11 @@ const fetchBookInventoryItem = async (isbn, bookID) => {
     "SELECT * FROM book_inv_detail WHERE isbn = $1 AND book_id = $2",
     [isbn, bookID]
   );
-  return book[0];
+  const { rows: bookGenres } = await pool.query(
+    "SELECT * FROM book_genre_detail WHERE isbn = $1",
+    [isbn]
+  );
+  return { ...book[0], genres: bookGenres.map((bookGenre) => bookGenre.genre) };
 };
 
 const fetchAvailableBooks = async () => {
